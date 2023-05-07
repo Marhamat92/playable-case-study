@@ -1,14 +1,34 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { FaTasks } from "react-icons/fa";
 import { BiLogOut } from "react-icons/bi";
 import TodoList from "../components/Todos/TodoList";
 import { MdAddTask } from "react-icons/md";
-
+import { useSelector, useDispatch } from 'react-redux';
+import { reset, logout } from '../features/auth/authSlice';
+import { useNavigate } from 'react-router-dom';
 //create todos component with a list of todos and user name and email and a button to add a todo and a button to delete a todo and a button to edit a todo
 function Home() {
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+  const { user } = useSelector(state => state.auth)
+
+
+  const logOut = async () => {
+    dispatch(logout())
+    // window.location.reload()
+    dispatch(reset())
+    navigate('/login')
+
+  }
 
   const todos = ["Go homw", "clean house", "Shopping"];
 
+
+  // useEffect(() => {
+  //   if (!user) {
+  //     navigate('/login')
+  //   }
+  // }, [user, navigate])
 
   return (
     <div className='bg-[#987EFF]'>
@@ -23,15 +43,15 @@ function Home() {
                       className='w-24 h-24  bg-[#987EFF] rounded-full  first-letter:
                     text-4xl font-bold text-white flex justify-center items-center'
                     >
-                      HM
+                      {user && user.name[0].toUpperCase()}
                     </div>
 
                     <div className='flex flex-col'>
-                      <h1 className='text-2xl font-bold text-[#987EFF] text-center'>
-                        Username
+                      <h1 className='text-2xl font-bold text-[#987EFF]'>
+                        {user && user.name}
                       </h1>
-                      <h1 className='text-xl font-bold text-[#987EFF]'>
-                        Email
+                      <h1 className='text-xl font-bold text-[#987EFF]  '>
+                        {user && user.email}
                       </h1>
                     </div>
                   </div>
@@ -64,7 +84,7 @@ function Home() {
                 >
                   <button
                     className='flex items-center
-               '
+               '   onClick={logOut}
                   >
                     <BiLogOut className='w-12 h-12  text-[#987EFF] ' />
                   </button>

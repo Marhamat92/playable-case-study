@@ -18,11 +18,7 @@ const corsOptions = {
   credentials: true
 }
 
-const hello = () => {
-  console.log('hello this backend')
-}
 
-hello()
 
 // cors
 app.use(cors(corsOptions));
