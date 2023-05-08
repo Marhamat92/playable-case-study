@@ -18,7 +18,7 @@ const TodoSchema = new mongoose.Schema({
     type: Boolean,
     default: false
   },
-  tags: {
+  tag: {
     type: String,
     required: [
       true,

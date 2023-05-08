@@ -31,6 +31,7 @@ function Login() {
     }
     if (isSuccess || user) {
       navigate('/')
+      window.location.reload()
     }
     dispatch(reset())
   }, [user, isError, isSuccess, message, navigate, dispatch])

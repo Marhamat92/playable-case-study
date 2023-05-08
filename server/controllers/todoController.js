@@ -2,7 +2,6 @@ const Todo = require('../models/Todo');
 const User = require('../models/User');
 const asyncHandler = require('express-async-handler');
 
-
 //@ desc Get all todos
 //@route GET /todo/list
 //@access Private
@@ -49,11 +48,11 @@ const getTodo = asyncHandler(async (req, res) => {
 //upload todo image to uploads folder
 
 const createTodo = asyncHandler(async (req, res) => {
-  const { title, tags, image } = req.body;
+  const { title, tag, image } = req.body;
 
   const todo = await Todo.create({
     title: title,
-    tags: tags,
+    tag: tag,
     image: image,
     isCompleted: false,
     author: req.user.id
@@ -100,6 +99,7 @@ const updateTodo = asyncHandler(async (req, res) => {
 //@route DELETE /todo/:id
 //@access Private
 const deleteTodo = asyncHandler(async (req, res) => {
+  //delete todo with todo image from uploads folder together     
   const todo = await Todo.findById(req.params.id);
 
   if (!todo) {
@@ -117,10 +117,31 @@ const deleteTodo = asyncHandler(async (req, res) => {
     throw new Error('Not authorized')
   }
 
-  await todo.remove()
-  res.status(200).json({ message: 'Todo removed' })
-}
-);
+  await Todo.deleteOne({ _id: req.params.id })
+
+
+
+  res.json({ message: 'Todo removed' })
+
+});
+
+
+
+
+
+
+//@ desc Image upload
+//@route POST /todo/upload
+//@access Private
+const uploadImage = asyncHandler(async (req, res) => {
+  if (req.files === null) {
+    res.status(400)
+    throw new Error('No file uploaded')
+  }
+
+  const file = req.file
+  res.status(200).json({ image: file.filename })
+})
 
 
 module.exports = {
@@ -128,7 +149,8 @@ module.exports = {
   getTodo,
   createTodo,
   updateTodo,
-  deleteTodo
+  deleteTodo,
+  uploadImage
 }
 
 

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { FaTasks } from "react-icons/fa";
 import { BiLogOut } from "react-icons/bi";
 import TodoList from "../components/Todos/TodoList";
@@ -6,22 +6,55 @@ import { MdAddTask } from "react-icons/md";
 import { useSelector, useDispatch } from 'react-redux';
 import { reset, logout } from '../features/auth/authSlice';
 import { useNavigate } from 'react-router-dom';
-//create todos component with a list of todos and user name and email and a button to add a todo and a button to delete a todo and a button to edit a todo
+import AddTodo from "../components/modals/AddTodo";
+import { getTodosSlice, updateTodoSlice } from "../features/todos/todoSlices";
+
+
+
+
 function Home() {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const { user } = useSelector(state => state.auth)
+  const { todos } = useSelector(state => state.todos)
+
+
+  useEffect(() => {
+    dispatch(getTodosSlice())
+    return () => {
+      dispatch(reset())
+    }
+  }, [dispatch])
 
 
   const logOut = async () => {
     dispatch(logout())
-    // window.location.reload()
     dispatch(reset())
     navigate('/login')
-
+    window.location.reload()
   }
 
-  const todos = ["Go homw", "clean house", "Shopping"];
+
+  //show todos which have tag that user clicked on it
+  const [filteredTodos, setFilteredTodos] = useState([])
+  const [tag, setTag] = useState('')
+
+  useEffect(() => {
+    setFilteredTodos(todos.length > 0 && todos.filter(todo => todo.tag === tag))
+  }, [tag, todos])
+
+
+  //search by title 
+  const [searchTerm, setSearchTerm] = useState('')
+  const [searchResults, setSearchResults] = useState([])
+  useEffect(() => {
+    const results = todos.length > 0 && todos.filter(todo =>
+      todo.title.toLowerCase().includes(searchTerm)
+    );
+    setSearchResults(results);
+  }, [searchTerm]);
+
+
 
 
   // useEffect(() => {
@@ -64,17 +97,23 @@ function Home() {
                       </div>
                     </div>
                   </div>
-                  <div className='mt-4'>
-                    {["Personal", "Work", "Shopping"].map((item, index) => {
-                      return (
-                        <div key={index} className='flex items-center'>
-                          <div className='w-6 h-6 ml-6'></div>
-                          <div className='w-1/2 h-12 px-4 text-lg font-medium text-[#828191] flex justify-center items-center'>
-                            {item}
-                          </div>
+                  <div className='mt-4 overflow-auto h-96'>
+                    {/* filter todos tag and show them here */}
+                    {
+                      todos.length > 0 && todos?.map((todo) => {
+                        return <div className='flex items-center justify-center    '>
+                          <button
+                            onClick={
+                              () => {
+                                setTag(todo.tag)
+                              }
+                            }
+                            className=' px-4 py-2 rounded-md text-sm bg-[#987EFF] justify-center items-center mt-1   text-white'>
+                            {todo.tag}
+                          </button>
                         </div>
-                      );
-                    })}
+                      })
+                    }
                   </div>
                 </div>
                 <div
@@ -90,7 +129,7 @@ function Home() {
                   </button>
                 </div>
               </div>
-              <div className='col-span-3 bg-[#987EFF] border-8 rounded-r-md border-white'>
+              <div className='col-span-3 bg-[#987EFF] border-8 rounded-r-md border-white overflow-auto'>
                 <div className="flex flex-col mx-6">
                   <div className="flex justify-between">
                     <h1 className=" 
@@ -98,13 +137,25 @@ function Home() {
                   ">
                       Today Main Focus
                     </h1>
-                    <button >
-                      <MdAddTask className="text-4xl font-bold text-white" />
+                    <input type="search"
+                      className="w-1/2 h-10 px-4 rounded-md text-xl font-bold text-[#828191] flex justify-center items-center mt-6 bg-white"
+                      placeholder="Search"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+
+                    />
+                    <button>
+                      <AddTodo
+
+                      />
                     </button>
                   </div>
 
                   <div className="mt-10">
-                    <TodoList todos={todos} />
+                    <TodoList
+                      //show todos for any case and then filter them by tag and search
+                      todos={searchTerm.length < 1 ? filteredTodos.length < 1 ? todos : filteredTodos : searchResults}
+                    />
                   </div>
                 </div>
 
@@ -113,6 +164,7 @@ function Home() {
           </div>
         </div>
       </div>
+
     </div>
   );
 }
