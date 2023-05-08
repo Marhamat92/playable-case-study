@@ -57,11 +57,11 @@ function Home() {
 
 
 
-  // useEffect(() => {
-  //   if (!user) {
-  //     navigate('/login')
-  //   }
-  // }, [user, navigate])
+  useEffect(() => {
+    if (!user) {
+      navigate('/login')
+    }
+  }, [user, navigate])
 
   return (
     <div className='bg-[#987EFF]'>
